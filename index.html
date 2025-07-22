@@ -3,95 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dangotepronostics - Inscription complète</title>
+  <title>Dangotepronostics - Inscription & Connexion</title>
   <style>
     body {
       background: linear-gradient(to bottom, #111, #000);
       color: #fff;
       font-family: Arial, sans-serif;
-      margin: 0; padding: 20px; text-align: center;
+      padding: 20px;
+      text-align: center;
     }
-    h1 {
-      color: #fbc02d;
-      font-size: 3rem;
-      margin-bottom: 0.5em;
+    input {
+      padding: 10px;
+      margin: 8px 0;
+      width: 250px;
+      border-radius: 5px;
+      border: none;
     }
-    form {
+    button {
+      padding: 10px 20px;
+      background: #fbc02d;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+    .container {
+      max-width: 320px;
+      margin: auto;
       background: #222;
       padding: 20px;
       border-radius: 10px;
-      max-width: 400px;
-      margin: 0 auto 2rem auto;
-      text-align: left;
+      margin-bottom: 30px;
     }
-    label {
-      display: block;
-      margin: 10px 0 5px;
+    h2 {
       color: #fbc02d;
-      font-weight: bold;
     }
-    input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-    .btn {
-      background: #fbc02d;
-      color: #000;
-      font-weight: bold;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      width: 100%;
-      cursor: pointer;
-      font-size: 1.1rem;
-    }
-    .btn:hover {
-      background: #e6b800;
-    }
-    .error {
-      color: #ff6666;
-      margin-bottom: 10px;
-    }
-    .success {
-      color: #66ff66;
-      margin-bottom: 10px;
-      font-weight: bold;
+    .message {
+      color: #fbc02d;
+      min-height: 20px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Inscription Dangotepronostics</h1>
-  
-  <form id="signup-form">
-    <div id="message"></div>
-    <label for="fullname">Nom complet</label>
-    <input type="text" id="fullname" required placeholder="Ton nom complet" />
-    
-    <label for="phone">Numéro de téléphone</label>
-    <input type="tel" id="phone" required placeholder="+229 97 10 55 16" pattern="^\+?\d{8,15}$" />
-    
-    <label for="email">Email</label>
-    <input type="email" id="email" required placeholder="exemple@mail.com" />
-    
-    <label for="password">Mot de passe</label>
-    <input type="password" id="password" required minlength="6" placeholder="6 caractères min." />
-    
-    <label for="confirm-password">Confirmer mot de passe</label>
-    <input type="password" id="confirm-password" required placeholder="Retape ton mot de passe" />
-    
-    <button type="submit" class="btn">S’inscrire</button>
-  </form>
 
-  <!-- Firebase SDKs -->
+  <h1>Dangotepronostics</h1>
+
+  <div class="container" id="signup-container">
+    <h2>Inscription</h2>
+    <input type="email" id="signup-email" placeholder="Email" required /><br/>
+    <input type="password" id="signup-password" placeholder="Mot de passe" required /><br/>
+    <input type="text" id="signup-name" placeholder="Nom complet" required /><br/>
+    <input type="tel" id="signup-phone" placeholder="Téléphone" required /><br/>
+    <button id="signup-btn">S’inscrire</button>
+    <p class="message" id="signup-message"></p>
+  </div>
+
+  <div class="container" id="login-container">
+    <h2>Connexion</h2>
+    <input type="email" id="login-email" placeholder="Email" required /><br/>
+    <input type="password" id="login-password" placeholder="Mot de passe" required /><br/>
+    <button id="login-btn">Se connecter</button>
+    <p class="message" id="login-message"></p>
+  </div>
+
+  <!-- Firebase JS SDKs -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
 
   <script>
-    // Ta configuration Firebase
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
       authDomain: "dangotepronostics.firebaseapp.com",
@@ -103,51 +90,71 @@
     };
 
     // Initialiser Firebase
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    const form = document.getElementById('signup-form');
-    const messageDiv = document.getElementById('message');
+    // Inscription
+    const signupBtn = document.getElementById('signup-btn');
+    const signupMessage = document.getElementById('signup-message');
+    signupBtn.addEventListener('click', () => {
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const name = document.getElementById('signup-name').value;
+      const phone = document.getElementById('signup-phone').value;
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      messageDiv.textContent = '';
-      messageDiv.className = '';
-
-      const fullname = document.getElementById('fullname').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirm-password').value;
-
-      if(password !== confirmPassword){
-        messageDiv.textContent = "Les mots de passe ne correspondent pas.";
-        messageDiv.className = 'error';
-        return;
-      }
-      if(password.length < 6){
-        messageDiv.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
-        messageDiv.className = 'error';
-        return;
-      }
-      if(!fullname || !phone || !email){
-        messageDiv.textContent = "Merci de remplir tous les champs.";
-        messageDiv.className = 'error';
+      signupMessage.textContent = '';
+      if (!email || !password || !name || !phone) {
+        signupMessage.textContent = "Tous les champs sont obligatoires.";
         return;
       }
 
-      try {
-        // Créer un utilisateur Firebase avec email et mot de passe
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        // Mettre à jour le profil avec le nom complet
-        await userCredential.user.updateProfile({ displayName: fullname, phoneNumber: phone });
-        messageDiv.textContent = "Inscription réussie ! Bienvenue, " + fullname;
-        messageDiv.className = 'success';
-        form.reset();
-      } catch(error) {
-        messageDiv.textContent = "Erreur: " + error.message;
-        messageDiv.className = 'error';
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          // Enregistrer infos supplémentaires dans Firestore
+          const user = userCredential.user;
+          return db.collection('users').doc(user.uid).set({
+            name: name,
+            phone: phone,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(() => {
+          signupMessage.textContent = "Inscription réussie, vous pouvez maintenant vous connecter.";
+          // Optionnel : vider les champs
+          document.getElementById('signup-email').value = '';
+          document.getElementById('signup-password').value = '';
+          document.getElementById('signup-name').value = '';
+          document.getElementById('signup-phone').value = '';
+        })
+        .catch(error => {
+          signupMessage.textContent = "Erreur : " + error.message;
+        });
+    });
+
+    // Connexion
+    const loginBtn = document.getElementById('login-btn');
+    const loginMessage = document.getElementById('login-message');
+    loginBtn.addEventListener('click', () => {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      loginMessage.textContent = '';
+      if (!email || !password) {
+        loginMessage.textContent = "Veuillez remplir tous les champs.";
+        return;
       }
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          loginMessage.textContent = `Bienvenue ${userCredential.user.email}`;
+          // Ici tu peux rediriger vers une autre page si tu veux
+          // window.location.href = "dashboard.html";
+        })
+        .catch(error => {
+          loginMessage.textContent = "Erreur : " + error.message;
+        });
     });
   </script>
 </body>
