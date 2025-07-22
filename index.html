@@ -3,155 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dangotepronostics - VIP Foot Afrique</title>
+  <title>Dangotepronostics - Inscription complète</title>
   <style>
     body {
       background: linear-gradient(to bottom, #111, #000);
       color: #fff;
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+      margin: 0; padding: 20px; text-align: center;
     }
     h1 {
       color: #fbc02d;
       font-size: 3rem;
-      margin-bottom: 0.2em;
-    }
-    p.description {
-      color: #bbb;
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-    }
-    .plans {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 2rem;
-    }
-    .plan {
-      background: #222;
-      border: 2px solid #fbc02d;
-      border-radius: 8px;
-      padding: 20px;
-      width: 220px;
-    }
-    .plan h2 {
-      color: #fbc02d;
       margin-bottom: 0.5em;
     }
-    .plan p {
-      font-size: 1.1rem;
-      margin-bottom: 1em;
+    form {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto 2rem auto;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #fbc02d;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 10px;
+      font-size: 1rem;
     }
     .btn {
-      display: inline-block;
       background: #fbc02d;
       color: #000;
       font-weight: bold;
-      padding: 10px 20px;
+      padding: 10px;
+      border: none;
       border-radius: 5px;
-      text-decoration: none;
+      width: 100%;
       cursor: pointer;
-      transition: background 0.3s ease;
+      font-size: 1.1rem;
     }
     .btn:hover {
       background: #e6b800;
     }
-    .footer-text {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
+    .error {
+      color: #ff6666;
+      margin-bottom: 10px;
     }
-    a.whatsapp {
-      color: #25d366;
-      text-decoration: none;
+    .success {
+      color: #66ff66;
+      margin-bottom: 10px;
       font-weight: bold;
-      font-size: 1rem;
-    }
-    a.whatsapp:hover {
-      text-decoration: underline;
-    }
-    form {
-      margin-top: 30px;
-      background: #222;
-      padding: 20px;
-      border-radius: 8px;
-      max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
-      color: #fbc02d;
-    }
-    input[type="email"],
-    input[type="password"] {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      border: none;
-      font-size: 1rem;
-    }
-    button[type="submit"] {
-      background: #fbc02d;
-      border: none;
-      padding: 10px 20px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      width: 100%;
-      color: #000;
-      font-size: 1.1rem;
-      transition: background 0.3s ease;
-    }
-    button[type="submit"]:hover {
-      background: #e6b800;
-    }
-    #message {
-      margin-top: 15px;
-      font-size: 1rem;
-      color: #ddd;
     }
   </style>
 </head>
 <body>
-  <h1>Dangotepronostics</h1>
-  <p class="description">Meilleure pronostic du foot VIP en Afrique</p>
-
-  <div class="plans">
-    <div class="plan">
-      <h2>Semaine</h2>
-      <p>1 000 FCFA</p>
-      <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
-    </div>
-    <div class="plan">
-      <h2>Mois</h2>
-      <p>3 000 FCFA</p>
-      <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
-    </div>
-  </div>
-
-  <p class="footer-text">
-    Paiements disponibles bientôt via FedaPay (MTN, Moov, Celtiis, Orange Money)
-  </p>
-
-  <a href="https://wa.me/22997105516" class="whatsapp">📞 Contact WhatsApp : +229 97 10 55 16</a>
-
-  <!-- Formulaire inscription -->
+  <h1>Inscription Dangotepronostics</h1>
+  
   <form id="signup-form">
-    <h2>Inscription</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Mot de passe" required />
-    <button type="submit">S’inscrire</button>
     <div id="message"></div>
+    <label for="fullname">Nom complet</label>
+    <input type="text" id="fullname" required placeholder="Ton nom complet" />
+    
+    <label for="phone">Numéro de téléphone</label>
+    <input type="tel" id="phone" required placeholder="+229 97 10 55 16" pattern="^\+?\d{8,15}$" />
+    
+    <label for="email">Email</label>
+    <input type="email" id="email" required placeholder="exemple@mail.com" />
+    
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" required minlength="6" placeholder="6 caractères min." />
+    
+    <label for="confirm-password">Confirmer mot de passe</label>
+    <input type="password" id="confirm-password" required placeholder="Retape ton mot de passe" />
+    
+    <button type="submit" class="btn">S’inscrire</button>
   </form>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
 
   <script>
+    // Ta configuration Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
       authDomain: "dangotepronostics.firebaseapp.com",
@@ -163,31 +103,52 @@
     };
 
     // Initialiser Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics(app);
-    const auth = firebase.auth(app);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    // Gérer l'inscription
-    const signupForm = document.getElementById('signup-form');
+    const form = document.getElementById('signup-form');
     const messageDiv = document.getElementById('message');
 
-    signupForm.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      messageDiv.textContent = '';
+      messageDiv.className = '';
 
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          messageDiv.style.color = "lightgreen";
-          messageDiv.textContent = "Inscription réussie ! Bienvenue.";
-          signupForm.reset();
-        })
-        .catch((error) => {
-          messageDiv.style.color = "orange";
-          messageDiv.textContent = "Erreur : " + error.message;
-        });
+      const fullname = document.getElementById('fullname').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if(password !== confirmPassword){
+        messageDiv.textContent = "Les mots de passe ne correspondent pas.";
+        messageDiv.className = 'error';
+        return;
+      }
+      if(password.length < 6){
+        messageDiv.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+        messageDiv.className = 'error';
+        return;
+      }
+      if(!fullname || !phone || !email){
+        messageDiv.textContent = "Merci de remplir tous les champs.";
+        messageDiv.className = 'error';
+        return;
+      }
+
+      try {
+        // Créer un utilisateur Firebase avec email et mot de passe
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        // Mettre à jour le profil avec le nom complet
+        await userCredential.user.updateProfile({ displayName: fullname, phoneNumber: phone });
+        messageDiv.textContent = "Inscription réussie ! Bienvenue, " + fullname;
+        messageDiv.className = 'success';
+        form.reset();
+      } catch(error) {
+        messageDiv.textContent = "Erreur: " + error.message;
+        messageDiv.className = 'error';
+      }
     });
   </script>
 </body>
 </html>
-Mise à jour des prix 
