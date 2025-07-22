@@ -3,82 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dangotepronostics - Inscription & Connexion</title>
+  <title>Dangotepronostics - VIP Foot Afrique</title>
   <style>
     body {
       background: linear-gradient(to bottom, #111, #000);
       color: #fff;
       font-family: Arial, sans-serif;
+      margin: 0;
       padding: 20px;
       text-align: center;
     }
-    input {
-      padding: 10px;
-      margin: 8px 0;
-      width: 250px;
-      border-radius: 5px;
-      border: none;
+    h1 {
+      color: #fbc02d;
+      font-size: 3rem;
+      margin-bottom: 0.2em;
     }
-    button {
-      padding: 10px 20px;
+    .hidden { display: none; }
+    .btn {
       background: #fbc02d;
-      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 20px;
       border-radius: 5px;
       cursor: pointer;
-      font-weight: bold;
-      color: #000;
+      border: none;
       margin-top: 10px;
     }
-    button:hover {
+    .btn:hover {
       background: #e6b800;
     }
-    .container {
-      max-width: 320px;
-      margin: auto;
+    input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 4px;
+      border: none;
+      width: 200px;
+    }
+    .dashboard {
+      margin-top: 30px;
       background: #222;
       padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-    }
-    h2 {
-      color: #fbc02d;
-    }
-    .message {
-      color: #fbc02d;
-      min-height: 20px;
-      margin-top: 10px;
+      border-radius: 8px;
+      display: inline-block;
+      text-align: left;
     }
   </style>
 </head>
 <body>
-
   <h1>Dangotepronostics</h1>
-
-  <div class="container" id="signup-container">
-    <h2>Inscription</h2>
-    <input type="email" id="signup-email" placeholder="Email" required /><br/>
-    <input type="password" id="signup-password" placeholder="Mot de passe" required /><br/>
-    <input type="text" id="signup-name" placeholder="Nom complet" required /><br/>
-    <input type="tel" id="signup-phone" placeholder="Téléphone" required /><br/>
-    <button id="signup-btn">S’inscrire</button>
-    <p class="message" id="signup-message"></p>
+  <div id="auth-container">
+    <h2>Inscription / Connexion</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Mot de passe" />
+    <br/>
+    <button class="btn" id="signup-btn">S’inscrire</button>
+    <button class="btn" id="login-btn">Se connecter</button>
+    <p id="message"></p>
   </div>
 
-  <div class="container" id="login-container">
-    <h2>Connexion</h2>
-    <input type="email" id="login-email" placeholder="Email" required /><br/>
-    <input type="password" id="login-password" placeholder="Mot de passe" required /><br/>
-    <button id="login-btn">Se connecter</button>
-    <p class="message" id="login-message"></p>
+  <div id="dashboard" class="hidden">
+    <h2>Tableau de bord</h2>
+    <p><strong>Email :</strong> <span id="user-email"></span></p>
+    <p><strong>ID utilisateur :</strong> <span id="user-uid"></span></p>
+    <button class="btn" id="logout-btn">Se déconnecter</button>
   </div>
 
-  <!-- Firebase JS SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
 
   <script>
-    // Config Firebase
+    // Configuration Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
       authDomain: "dangotepronostics.firebaseapp.com",
@@ -89,73 +84,69 @@
       measurementId: "G-FZ2631N38D"
     };
 
-    // Initialiser Firebase
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    // Inscription
-    const signupBtn = document.getElementById('signup-btn');
-    const signupMessage = document.getElementById('signup-message');
-    signupBtn.addEventListener('click', () => {
-      const email = document.getElementById('signup-email').value;
-      const password = document.getElementById('signup-password').value;
-      const name = document.getElementById('signup-name').value;
-      const phone = document.getElementById('signup-phone').value;
+    // Sélection éléments DOM
+    const authContainer = document.getElementById('auth-container');
+    const dashboard = document.getElementById('dashboard');
+    const message = document.getElementById('message');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const userEmailSpan = document.getElementById('user-email');
+    const userUidSpan = document.getElementById('user-uid');
 
-      signupMessage.textContent = '';
-      if (!email || !password || !name || !phone) {
-        signupMessage.textContent = "Tous les champs sont obligatoires.";
-        return;
-      }
-
+    // Événements boutons
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      const email = emailInput.value;
+      const password = passwordInput.value;
       auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
-          // Enregistrer infos supplémentaires dans Firestore
-          const user = userCredential.user;
-          return db.collection('users').doc(user.uid).set({
-            name: name,
-            phone: phone,
-            email: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        })
-        .then(() => {
-          signupMessage.textContent = "Inscription réussie, vous pouvez maintenant vous connecter.";
-          // Optionnel : vider les champs
-          document.getElementById('signup-email').value = '';
-          document.getElementById('signup-password').value = '';
-          document.getElementById('signup-name').value = '';
-          document.getElementById('signup-phone').value = '';
+          message.textContent = 'Inscription réussie ! Bienvenue.';
+          clearInputs();
         })
         .catch(error => {
-          signupMessage.textContent = "Erreur : " + error.message;
+          message.textContent = `Erreur: ${error.message}`;
         });
     });
 
-    // Connexion
-    const loginBtn = document.getElementById('login-btn');
-    const loginMessage = document.getElementById('login-message');
-    loginBtn.addEventListener('click', () => {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-
-      loginMessage.textContent = '';
-      if (!email || !password) {
-        loginMessage.textContent = "Veuillez remplir tous les champs.";
-        return;
-      }
-
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const email = emailInput.value;
+      const password = passwordInput.value;
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          loginMessage.textContent = `Bienvenue ${userCredential.user.email}`;
-          // Ici tu peux rediriger vers une autre page si tu veux
-          // window.location.href = "dashboard.html";
+          message.textContent = 'Connexion réussie !';
+          clearInputs();
         })
         .catch(error => {
-          loginMessage.textContent = "Erreur : " + error.message;
+          message.textContent = `Erreur: ${error.message}`;
         });
     });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    // Écoute de changement d’état de connexion
+    auth.onAuthStateChanged(user => {
+      if(user) {
+        // Utilisateur connecté
+        authContainer.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        userEmailSpan.textContent = user.email;
+        userUidSpan.textContent = user.uid;
+      } else {
+        // Pas connecté
+        authContainer.classList.remove('hidden');
+        dashboard.classList.add('hidden');
+      }
+    });
+
+    function clearInputs() {
+      emailInput.value = '';
+      passwordInput.value = '';
+    }
   </script>
 </body>
 </html>
