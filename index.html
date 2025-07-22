@@ -35,7 +35,7 @@
       border: 2px solid #fbc02d;
       border-radius: 8px;
       padding: 20px;
-      width: 250px;
+      width: 220px;
     }
     .plan h2 {
       color: #fbc02d;
@@ -73,14 +73,44 @@
     a.whatsapp:hover {
       text-decoration: underline;
     }
-    @media (max-width: 600px) {
-      .plans {
-        flex-direction: column;
-        align-items: center;
-      }
-      .plan {
-        width: 90%;
-      }
+    form {
+      margin-top: 30px;
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #fbc02d;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+    }
+    button[type="submit"] {
+      background: #fbc02d;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+      color: #000;
+      font-size: 1.1rem;
+      transition: background 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background: #e6b800;
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 1rem;
+      color: #ddd;
     }
   </style>
 </head>
@@ -90,13 +120,13 @@
 
   <div class="plans">
     <div class="plan">
-      <h2>Abonnement Hebdomadaire</h2>
-      <p>1 000 FCFA / semaine</p>
+      <h2>Semaine</h2>
+      <p>1 000 FCFA</p>
       <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
     </div>
     <div class="plan">
-      <h2>Abonnement Mensuel</h2>
-      <p>3 000 FCFA / mois</p>
+      <h2>Mois</h2>
+      <p>3 000 FCFA</p>
       <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
     </div>
   </div>
@@ -107,11 +137,18 @@
 
   <a href="https://wa.me/22997105516" class="whatsapp">📞 Contact WhatsApp : +229 97 10 55 16</a>
 
-  <!-- Firebase App (core SDK) -->
+  <!-- Formulaire inscription -->
+  <form id="signup-form">
+    <h2>Inscription</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Mot de passe" required />
+    <button type="submit">S’inscrire</button>
+    <div id="message"></div>
+  </form>
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-  <!-- Firebase Analytics -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"></script>
-  <!-- Firebase Authentication -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
 
   <script>
@@ -125,10 +162,32 @@
       measurementId: "G-FZ2631N38D"
     };
 
+    // Initialiser Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const analytics = firebase.analytics(app);
     const auth = firebase.auth(app);
+
+    // Gérer l'inscription
+    const signupForm = document.getElementById('signup-form');
+    const messageDiv = document.getElementById('message');
+
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          messageDiv.style.color = "lightgreen";
+          messageDiv.textContent = "Inscription réussie ! Bienvenue.";
+          signupForm.reset();
+        })
+        .catch((error) => {
+          messageDiv.style.color = "orange";
+          messageDiv.textContent = "Erreur : " + error.message;
+        });
+    });
   </script>
 </body>
 </html>
-Mise à jour des prix
+Mise à jour des prix 
