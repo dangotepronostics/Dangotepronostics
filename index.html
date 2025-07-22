@@ -18,9 +18,7 @@
       font-size: 3rem;
       margin-bottom: 0.2em;
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
     .btn {
       background: #fbc02d;
       color: #000;
@@ -30,7 +28,6 @@
       cursor: pointer;
       border: none;
       margin-top: 10px;
-      margin-right: 10px;
     }
     .btn:hover {
       background: #e6b800;
@@ -40,18 +37,7 @@
       margin: 5px;
       border-radius: 4px;
       border: none;
-      width: 220px;
-      font-size: 1rem;
-    }
-    .message {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    .success {
-      color: #4caf50;
-    }
-    .error {
-      color: #f44336;
+      width: 200px;
     }
     .dashboard {
       margin-top: 30px;
@@ -61,33 +47,32 @@
       display: inline-block;
       text-align: left;
     }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .success {
+      color: #4CAF50; /* vert */
+    }
+    .error {
+      color: #F44336; /* rouge */
+    }
   </style>
 </head>
 <body>
   <h1>Dangotepronostics</h1>
-
   <div id="auth-container">
-    <h2 id="form-title">Inscription / Connexion</h2>
-
-    <!-- Champs inscription / connexion -->
-    <input type="text" id="fullName" placeholder="Nom complet" class="hidden" />
-    <input type="tel" id="phone" placeholder="Numéro de téléphone" class="hidden" />
-    <input type="email" id="email" placeholder="Adresse email" />
+    <h2>Inscription / Connexion</h2>
+    <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Mot de passe" />
-    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" class="hidden" />
     <br/>
-
-    <!-- Boutons -->
     <button class="btn" id="signup-btn">S’inscrire</button>
     <button class="btn" id="login-btn">Se connecter</button>
-
-    <p id="message" class="message"></p>
+    <p id="message"></p>
   </div>
 
   <div id="dashboard" class="hidden">
     <h2>Tableau de bord</h2>
-    <p><strong>Nom complet :</strong> <span id="user-name"></span></p>
-    <p><strong>Téléphone :</strong> <span id="user-phone"></span></p>
     <p><strong>Email :</strong> <span id="user-email"></span></p>
     <p><strong>ID utilisateur :</strong> <span id="user-uid"></span></p>
     <button class="btn" id="logout-btn">Se déconnecter</button>
@@ -96,7 +81,6 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
 
   <script>
     // Configuration Firebase
@@ -113,175 +97,73 @@
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    // DOM elements
-    const signupBtn = document.getElementById('signup-btn');
-    const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-
-    const fullNameInput = document.getElementById('fullName');
-    const phoneInput = document.getElementById('phone');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-
-    const message = document.getElementById('message');
+    // Sélection éléments DOM
     const authContainer = document.getElementById('auth-container');
     const dashboard = document.getElementById('dashboard');
-
-    const userNameSpan = document.getElementById('user-name');
-    const userPhoneSpan = document.getElementById('user-phone');
+    const message = document.getElementById('message');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
     const userEmailSpan = document.getElementById('user-email');
     const userUidSpan = document.getElementById('user-uid');
 
-    const formTitle = document.getElementById('form-title');
-
-    // Mode d'affichage : 'signup' ou 'login'
-    let mode = 'signup';
-
-    // Fonction pour basculer vers inscription
-    function showSignup() {
-      mode = 'signup';
-      formTitle.textContent = "Formulaire d'inscription";
-      fullNameInput.classList.remove('hidden');
-      phoneInput.classList.remove('hidden');
-      confirmPasswordInput.classList.remove('hidden');
-      emailInput.placeholder = "Adresse email";
-      message.textContent = "";
-    }
-
-    // Fonction pour basculer vers connexion
-    function showLogin() {
-      mode = 'login';
-      formTitle.textContent = "Connexion";
-      fullNameInput.classList.add('hidden');
-      phoneInput.classList.add('hidden');
-      confirmPasswordInput.classList.add('hidden');
-      emailInput.placeholder = "Email ou numéro";
-      message.textContent = "";
-    }
-
-    // Affiche formulaire inscription au départ
-    showSignup();
-
-    // Événements boutons pour basculer formulaire
-    signupBtn.addEventListener('click', () => {
-      if(mode !== 'signup') {
-        showSignup();
-        return;
-      }
-      // Traitement inscription
-      const fullName = fullNameInput.value.trim();
-      const phone = phoneInput.value.trim();
-      const email = emailInput.value.trim();
+    // Événements boutons
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      alert("Bouton inscription cliqué");  // TEST
+      const email = emailInput.value;
       const password = passwordInput.value;
-      const confirmPassword = confirmPasswordInput.value;
-
-      if(!fullName || !phone || !email || !password || !confirmPassword) {
-        showMessage("Veuillez remplir tous les champs.", "error");
-        return;
-      }
-      if(password !== confirmPassword) {
-        showMessage("Les mots de passe ne correspondent pas.", "error");
-        return;
-      }
-
       auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
-          const user = userCredential.user;
-          // Sauvegarder nom et téléphone dans Firestore
-          return db.collection('users').doc(user.uid).set({
-            fullName: fullName,
-            phone: phone,
-            email: email
-          });
-        })
-        .then(() => {
-          showMessage("Inscription réussie ! Bienvenue.", "success");
+          message.textContent = 'Inscription réussie ! Bienvenue.';
+          message.className = 'success';
           clearInputs();
         })
         .catch(error => {
-          showMessage("Erreur : " + error.message, "error");
+          message.textContent = `Erreur: ${error.message}`;
+          message.className = 'error';
         });
     });
 
-    loginBtn.addEventListener('click', () => {
-      if(mode !== 'login') {
-        showLogin();
-        return;
-      }
-      // Traitement connexion
-      const emailOrPhone = emailInput.value.trim();
+    document.getElementById('login-btn').addEventListener('click', () => {
+      alert("Bouton connexion cliqué");  // TEST
+      const email = emailInput.value;
       const password = passwordInput.value;
-
-      if(!emailOrPhone || !password) {
-        showMessage("Veuillez remplir tous les champs.", "error");
-        return;
-      }
-
-      // Ici on suppose que l'email ou numéro est email (Firebase Auth ne gère pas le login par téléphone directement sans vérification SMS)
-      auth.signInWithEmailAndPassword(emailOrPhone, password)
+      auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          showMessage("Connexion réussie !", "success");
+          message.textContent = 'Connexion réussie !';
+          message.className = 'success';
           clearInputs();
         })
         .catch(error => {
-          showMessage("Erreur : " + error.message, "error");
+          message.textContent = `Erreur: ${error.message}`;
+          message.className = 'error';
         });
     });
 
-    logoutBtn.addEventListener('click', () => {
+    document.getElementById('logout-btn').addEventListener('click', () => {
       auth.signOut();
     });
 
-    // Écoute changement état utilisateur
+    // Écoute de changement d’état de connexion
     auth.onAuthStateChanged(user => {
       if(user) {
+        // Utilisateur connecté
         authContainer.classList.add('hidden');
         dashboard.classList.remove('hidden');
+        userEmailSpan.textContent = user.email;
         userUidSpan.textContent = user.uid;
-
-        // Récupérer données supplémentaires dans Firestore
-        db.collection('users').doc(user.uid).get()
-          .then(doc => {
-            if(doc.exists) {
-              const data = doc.data();
-              userNameSpan.textContent = data.fullName || "N/A";
-              userPhoneSpan.textContent = data.phone || "N/A";
-              userEmailSpan.textContent = data.email || user.email;
-            } else {
-              userNameSpan.textContent = "N/A";
-              userPhoneSpan.textContent = "N/A";
-              userEmailSpan.textContent = user.email;
-            }
-          })
-          .catch(() => {
-            userNameSpan.textContent = "N/A";
-            userPhoneSpan.textContent = "N/A";
-            userEmailSpan.textContent = user.email;
-          });
-
+        message.textContent = '';
       } else {
+        // Pas connecté
         authContainer.classList.remove('hidden');
         dashboard.classList.add('hidden');
-        showSignup(); // Par défaut formulaire inscription
-        clearInputs();
+        message.textContent = '';
       }
-      message.textContent = "";
     });
 
-    function showMessage(text, type) {
-      message.textContent = text;
-      message.className = `message ${type}`;
-    }
-
     function clearInputs() {
-      fullNameInput.value = '';
-      phoneInput.value = '';
       emailInput.value = '';
       passwordInput.value = '';
-      confirmPasswordInput.value = '';
     }
   </script>
 </body>
