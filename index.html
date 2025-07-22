@@ -27,7 +27,7 @@
       border-radius: 5px;
       cursor: pointer;
       border: none;
-      margin-top: 10px;
+      margin: 5px;
     }
     .btn:hover {
       background: #e6b800;
@@ -37,7 +37,7 @@
       margin: 5px;
       border-radius: 4px;
       border: none;
-      width: 200px;
+      width: 220px;
     }
     .dashboard {
       margin-top: 30px;
@@ -51,23 +51,38 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    .success {
-      color: #4CAF50; /* vert */
-    }
-    .error {
-      color: #F44336; /* rouge */
-    }
+    .success { color: #4CAF50; }
+    .error { color: #F44336; }
   </style>
 </head>
 <body>
   <h1>Dangotepronostics</h1>
   <div id="auth-container">
-    <h2>Inscription / Connexion</h2>
-    <input type="email" id="email" placeholder="Email" />
+    <h2 id="form-title">Connexion</h2>
+    
+    <!-- Champs Inscription -->
+    <div id="signup-fields" class="hidden">
+      <input type="text" id="fullname" placeholder="Nom complet" />
+      <input type="text" id="phone" placeholder="Numéro" />
+    </div>
+    
+    <!-- Champs communs -->
+    <input type="email" id="email" placeholder="Adresse email" />
     <input type="password" id="password" placeholder="Mot de passe" />
-    <br/>
-    <button class="btn" id="signup-btn">S’inscrire</button>
-    <button class="btn" id="login-btn">Se connecter</button>
+    <input type="password" id="confirm-password" placeholder="Confirmer le mot de passe" class="hidden" />
+
+    <!-- Boutons -->
+    <div>
+      <button class="btn" onclick="showForm('signup')">Inscription</button>
+      <button class="btn" onclick="showForm('login')">Connexion</button>
+    </div>
+
+    <!-- Actions -->
+    <div>
+      <button class="btn hidden" id="signup-btn">Valider l'inscription</button>
+      <button class="btn hidden" id="login-btn">Se connecter</button>
+    </div>
+
     <p id="message"></p>
   </div>
 
@@ -83,59 +98,85 @@
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
 
   <script>
-    // Configuration Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
-      authDomain: "dangotepronostics.firebaseapp.com",
-      projectId: "dangotepronostics",
-      storageBucket: "dangotepronostics.firebasestorage.app",
-      messagingSenderId: "492464665234",
-      appId: "1:492464665234:web:bbe87ac757c48dd6beac4b",
-      measurementId: "G-FZ2631N38D"
+      apiKey: "TON_API_KEY",
+      authDomain: "TON_DOMAINE.firebaseapp.com",
+      projectId: "TON_PROJECT_ID",
+      storageBucket: "TON_PROJECT_ID.appspot.com",
+      messagingSenderId: "TON_SENDER_ID",
+      appId: "TON_APP_ID"
     };
 
-    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Sélection éléments DOM
     const authContainer = document.getElementById('auth-container');
     const dashboard = document.getElementById('dashboard');
     const message = document.getElementById('message');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm-password');
+    const fullName = document.getElementById('fullname');
+    const phone = document.getElementById('phone');
     const userEmailSpan = document.getElementById('user-email');
     const userUidSpan = document.getElementById('user-uid');
+    const signupBtn = document.getElementById('signup-btn');
+    const loginBtn = document.getElementById('login-btn');
+    const formTitle = document.getElementById('form-title');
+    const signupFields = document.getElementById('signup-fields');
 
-    // Événements boutons
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      alert("Bouton inscription cliqué");  // TEST
+    function showForm(mode) {
+      if (mode === 'signup') {
+        formTitle.textContent = "Inscription";
+        signupFields.classList.remove('hidden');
+        confirmPassword.classList.remove('hidden');
+        signupBtn.classList.remove('hidden');
+        loginBtn.classList.add('hidden');
+      } else {
+        formTitle.textContent = "Connexion";
+        signupFields.classList.add('hidden');
+        confirmPassword.classList.add('hidden');
+        signupBtn.classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+      }
+      message.textContent = '';
+    }
+
+    signupBtn.addEventListener('click', () => {
       const email = emailInput.value;
       const password = passwordInput.value;
+      const confirm = confirmPassword.value;
+
+      if (password !== confirm) {
+        message.textContent = "Les mots de passe ne correspondent pas.";
+        message.className = 'error';
+        return;
+      }
+
       auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
-          message.textContent = 'Inscription réussie ! Bienvenue.';
+          message.textContent = "Inscription réussie 🎉";
           message.className = 'success';
           clearInputs();
         })
         .catch(error => {
-          message.textContent = `Erreur: ${error.message}`;
+          message.textContent = "Erreur : " + error.message;
           message.className = 'error';
         });
     });
 
-    document.getElementById('login-btn').addEventListener('click', () => {
-      alert("Bouton connexion cliqué");  // TEST
+    loginBtn.addEventListener('click', () => {
       const email = emailInput.value;
       const password = passwordInput.value;
+
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          message.textContent = 'Connexion réussie !';
+          message.textContent = "Connexion réussie ✅";
           message.className = 'success';
           clearInputs();
         })
         .catch(error => {
-          message.textContent = `Erreur: ${error.message}`;
+          message.textContent = "Erreur : " + error.message;
           message.className = 'error';
         });
     });
@@ -144,26 +185,24 @@
       auth.signOut();
     });
 
-    // Écoute de changement d’état de connexion
     auth.onAuthStateChanged(user => {
-      if(user) {
-        // Utilisateur connecté
+      if (user) {
         authContainer.classList.add('hidden');
         dashboard.classList.remove('hidden');
         userEmailSpan.textContent = user.email;
         userUidSpan.textContent = user.uid;
-        message.textContent = '';
       } else {
-        // Pas connecté
         authContainer.classList.remove('hidden');
         dashboard.classList.add('hidden');
-        message.textContent = '';
       }
     });
 
     function clearInputs() {
       emailInput.value = '';
       passwordInput.value = '';
+      confirmPassword.value = '';
+      fullName.value = '';
+      phone.value = '';
     }
   </script>
 </body>
