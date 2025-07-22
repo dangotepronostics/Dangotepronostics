@@ -35,7 +35,7 @@
       border: 2px solid #fbc02d;
       border-radius: 8px;
       padding: 20px;
-      width: 220px;
+      width: 250px;
     }
     .plan h2 {
       color: #fbc02d;
@@ -90,18 +90,13 @@
 
   <div class="plans">
     <div class="plan">
-      <h2>Journalier</h2>
-      <p>1 000 FCFA</p>
+      <h2>Abonnement Hebdomadaire</h2>
+      <p>1 000 FCFA / semaine</p>
       <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
     </div>
     <div class="plan">
-      <h2>Hebdomadaire</h2>
-      <p>5 000 FCFA</p>
-      <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
-    </div>
-    <div class="plan">
-      <h2>Mensuel</h2>
-      <p>15 000 FCFA</p>
+      <h2>Abonnement Mensuel</h2>
+      <p>3 000 FCFA / mois</p>
       <a href="https://wa.me/22997105516" class="btn">S’abonner</a>
     </div>
   </div>
@@ -111,5 +106,29 @@
   </p>
 
   <a href="https://wa.me/22997105516" class="whatsapp">📞 Contact WhatsApp : +229 97 10 55 16</a>
+
+  <!-- Firebase App (core SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
+  <!-- Firebase Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"></script>
+  <!-- Firebase Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
+      authDomain: "dangotepronostics.firebaseapp.com",
+      projectId: "dangotepronostics",
+      storageBucket: "dangotepronostics.firebasestorage.app",
+      messagingSenderId: "492464665234",
+      appId: "1:492464665234:web:bbe87ac757c48dd6beac4b",
+      measurementId: "G-FZ2631N38D"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics(app);
+    const auth = firebase.auth(app);
+  </script>
 </body>
 </html>
+Mise à jour des prix
