@@ -72,81 +72,98 @@
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
 
-  <script>
-    // Configuration Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
-      authDomain: "dangotepronostics.firebaseapp.com",
-      projectId: "dangotepronostics",
-      storageBucket: "dangotepronostics.firebasestorage.app",
-      messagingSenderId: "492464665234",
-      appId: "1:492464665234:web:bbe87ac757c48dd6beac4b",
-      measurementId: "G-FZ2631N38D"
-    };
+<script>
+  // Configuration Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuNriFRCAJyno0evGe_TzxgibH_OqaFPA",
+    authDomain: "dangotepronostics.firebaseapp.com",
+    projectId: "dangotepronostics",
+    storageBucket: "dangotepronostics.firebasestorage.app",
+    messagingSenderId: "492464665234",
+    appId: "1:492464665234:web:bbe87ac757c48dd6beac4b",
+    measurementId: "G-FZ2631N38D"
+  };
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
 
-    // Sélection éléments DOM
-    const authContainer = document.getElementById('auth-container');
-    const dashboard = document.getElementById('dashboard');
-    const message = document.getElementById('message');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const userEmailSpan = document.getElementById('user-email');
-    const userUidSpan = document.getElementById('user-uid');
+  // Sélection éléments DOM
+  const authContainer = document.getElementById('auth-container');
+  const dashboard = document.getElementById('dashboard');
+  const message = document.getElementById('message');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const userEmailSpan = document.getElementById('user-email');
+  const userUidSpan = document.getElementById('user-uid');
 
-    // Événements boutons
-    document.getElementById('signup-btn').addEventListener('click', () => {
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          message.textContent = 'Inscription réussie ! Bienvenue.';
-          clearInputs();
-        })
-        .catch(error => {
-          message.textContent = `Erreur: ${error.message}`;
-        });
-    });
-
-    document.getElementById('login-btn').addEventListener('click', () => {
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          message.textContent = 'Connexion réussie !';
-          clearInputs();
-        })
-        .catch(error => {
-          message.textContent = `Erreur: ${error.message}`;
-        });
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      auth.signOut();
-    });
-
-    // Écoute de changement d’état de connexion
-    auth.onAuthStateChanged(user => {
-      if(user) {
-        // Utilisateur connecté
-        authContainer.classList.add('hidden');
-        dashboard.classList.remove('hidden');
-        userEmailSpan.textContent = user.email;
-        userUidSpan.textContent = user.uid;
-      } else {
-        // Pas connecté
-        authContainer.classList.remove('hidden');
-        dashboard.classList.add('hidden');
-      }
-    });
-
-    function clearInputs() {
-      emailInput.value = '';
-      passwordInput.value = '';
+  // Fonction pour afficher message avec couleur
+  function showMessage(text, isSuccess) {
+    message.textContent = text;
+    if (isSuccess) {
+      message.style.color = 'limegreen';  // vert
+    } else {
+      message.style.color = 'red';         // rouge
     }
-  </script>
-</body>
-</html>
+  }
+
+  // Événements boutons
+  document.getElementById('signup-btn').addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) {
+      showMessage('Merci de remplir tous les champs.', false);
+      return;
+    }
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        showMessage('Inscription réussie, bienvenue !', true);
+        clearInputs();
+      })
+      .catch(error => {
+        showMessage(`Erreur : ${error.message}`, false);
+      });
+  });
+
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    if (!email || !password) {
+      showMessage('Merci de remplir tous les champs.', false);
+      return;
+    }
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        showMessage('Connexion réussie !', true);
+        clearInputs();
+      })
+      .catch(error => {
+        showMessage(`Erreur : ${error.message}`, false);
+      });
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    auth.signOut();
+  });
+
+  // Écoute de changement d’état de connexion
+  auth.onAuthStateChanged(user => {
+    if(user) {
+      // Utilisateur connecté
+      authContainer.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      userEmailSpan.textContent = user.email;
+      userUidSpan.textContent = user.uid;
+      message.textContent = '';  // effacer message
+    } else {
+      // Pas connecté
+      authContainer.classList.remove('hidden');
+      dashboard.classList.add('hidden');
+    }
+  });
+
+  function clearInputs() {
+    emailInput.value = '';
+    passwordInput.value = '';
+  }
+</script>
