@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dangotepronostics - Inscription / Connexion</title>
+  <title>Dangotepronostics - VIP Foot Afrique</title>
   <style>
     body {
       background: linear-gradient(to bottom, #111, #000);
@@ -15,93 +15,88 @@
     }
     h1 {
       color: #fbc02d;
-      margin-bottom: 20px;
+      font-size: 3rem;
+      margin-bottom: 0.2em;
     }
-    .btn-toggle {
-      cursor: pointer;
-      padding: 10px 20px;
-      background: #222;
-      color: #fbc02d;
-      border: none;
-      margin: 0 10px 20px;
-      font-weight: bold;
-      border-radius: 5px;
-      transition: background 0.3s;
+    .hidden {
+      display: none;
     }
-    .btn-toggle.active {
+    .btn {
       background: #fbc02d;
       color: #000;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      margin-top: 10px;
+      margin-right: 10px;
     }
-    form {
+    .btn:hover {
+      background: #e6b800;
+    }
+    input {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 4px;
+      border: none;
+      width: 220px;
+      font-size: 1rem;
+    }
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .success {
+      color: #4caf50;
+    }
+    .error {
+      color: #f44336;
+    }
+    .dashboard {
+      margin-top: 30px;
       background: #222;
       padding: 20px;
       border-radius: 8px;
       display: inline-block;
       text-align: left;
-      width: 300px;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 5px;
-      border: none;
-    }
-    .btn-submit {
-      width: 100%;
-      background: #fbc02d;
-      color: #000;
-      font-weight: bold;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s;
-    }
-    .btn-submit:hover {
-      background: #e6b800;
-    }
-    #message {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    #message.success {
-      color: #4CAF50;
-    }
-    #message.error {
-      color: #FF5722;
     }
   </style>
 </head>
 <body>
-  <h1>Dangotepronostics - Inscription / Connexion</h1>
+  <h1>Dangotepronostics</h1>
 
-  <div>
-    <button id="btnSignup" class="btn-toggle active">Inscription</button>
-    <button id="btnLogin" class="btn-toggle">Connexion</button>
+  <div id="auth-container">
+    <h2 id="form-title">Inscription / Connexion</h2>
+
+    <!-- Champs inscription / connexion -->
+    <input type="text" id="fullName" placeholder="Nom complet" class="hidden" />
+    <input type="tel" id="phone" placeholder="Numéro de téléphone" class="hidden" />
+    <input type="email" id="email" placeholder="Adresse email" />
+    <input type="password" id="password" placeholder="Mot de passe" />
+    <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" class="hidden" />
+    <br/>
+
+    <!-- Boutons -->
+    <button class="btn" id="signup-btn">S’inscrire</button>
+    <button class="btn" id="login-btn">Se connecter</button>
+
+    <p id="message" class="message"></p>
   </div>
 
-  <form id="signup-form">
-    <input type="text" id="signup-fullname" placeholder="Nom complet" required />
-    <input type="text" id="signup-phone" placeholder="Numéro de téléphone" required />
-    <input type="email" id="signup-email" placeholder="Adresse email" required />
-    <input type="password" id="signup-password" placeholder="Mot de passe" required />
-    <input type="password" id="signup-confirm-password" placeholder="Confirmer le mot de passe" required />
-    <button type="submit" class="btn-submit">S’inscrire</button>
-  </form>
-
-  <form id="login-form" style="display:none;">
-    <input type="text" id="login-identifier" placeholder="Numéro ou Email" required />
-    <input type="password" id="login-password" placeholder="Mot de passe" required />
-    <button type="submit" class="btn-submit">Se connecter</button>
-  </form>
-
-  <p id="message"></p>
+  <div id="dashboard" class="hidden">
+    <h2>Tableau de bord</h2>
+    <p><strong>Nom complet :</strong> <span id="user-name"></span></p>
+    <p><strong>Téléphone :</strong> <span id="user-phone"></span></p>
+    <p><strong>Email :</strong> <span id="user-email"></span></p>
+    <p><strong>ID utilisateur :</strong> <span id="user-uid"></span></p>
+    <button class="btn" id="logout-btn">Se déconnecter</button>
+  </div>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js"></script>
 
   <script>
     // Configuration Firebase
@@ -114,83 +109,179 @@
       appId: "1:492464665234:web:bbe87ac757c48dd6beac4b",
       measurementId: "G-FZ2631N38D"
     };
-    // Initialiser Firebase
+
+    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    const btnSignup = document.getElementById('btnSignup');
-    const btnLogin = document.getElementById('btnLogin');
-    const signupForm = document.getElementById('signup-form');
-    const loginForm = document.getElementById('login-form');
+    // DOM elements
+    const signupBtn = document.getElementById('signup-btn');
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const fullNameInput = document.getElementById('fullName');
+    const phoneInput = document.getElementById('phone');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+
     const message = document.getElementById('message');
+    const authContainer = document.getElementById('auth-container');
+    const dashboard = document.getElementById('dashboard');
 
-    // Basculer entre les formulaires
-    btnSignup.addEventListener('click', () => {
-      btnSignup.classList.add('active');
-      btnLogin.classList.remove('active');
-      signupForm.style.display = 'block';
-      loginForm.style.display = 'none';
-      message.textContent = '';
-    });
+    const userNameSpan = document.getElementById('user-name');
+    const userPhoneSpan = document.getElementById('user-phone');
+    const userEmailSpan = document.getElementById('user-email');
+    const userUidSpan = document.getElementById('user-uid');
 
-    btnLogin.addEventListener('click', () => {
-      btnLogin.classList.add('active');
-      btnSignup.classList.remove('active');
-      signupForm.style.display = 'none';
-      loginForm.style.display = 'block';
-      message.textContent = '';
-    });
+    const formTitle = document.getElementById('form-title');
 
-    // Inscription
-    signupForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const fullname = document.getElementById('signup-fullname').value.trim();
-      const phone = document.getElementById('signup-phone').value.trim();
-      const email = document.getElementById('signup-email').value.trim();
-      const password = document.getElementById('signup-password').value;
-      const confirmPassword = document.getElementById('signup-confirm-password').value;
+    // Mode d'affichage : 'signup' ou 'login'
+    let mode = 'signup';
 
+    // Fonction pour basculer vers inscription
+    function showSignup() {
+      mode = 'signup';
+      formTitle.textContent = "Formulaire d'inscription";
+      fullNameInput.classList.remove('hidden');
+      phoneInput.classList.remove('hidden');
+      confirmPasswordInput.classList.remove('hidden');
+      emailInput.placeholder = "Adresse email";
+      message.textContent = "";
+    }
+
+    // Fonction pour basculer vers connexion
+    function showLogin() {
+      mode = 'login';
+      formTitle.textContent = "Connexion";
+      fullNameInput.classList.add('hidden');
+      phoneInput.classList.add('hidden');
+      confirmPasswordInput.classList.add('hidden');
+      emailInput.placeholder = "Email ou numéro";
+      message.textContent = "";
+    }
+
+    // Affiche formulaire inscription au départ
+    showSignup();
+
+    // Événements boutons pour basculer formulaire
+    signupBtn.addEventListener('click', () => {
+      if(mode !== 'signup') {
+        showSignup();
+        return;
+      }
+      // Traitement inscription
+      const fullName = fullNameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if(!fullName || !phone || !email || !password || !confirmPassword) {
+        showMessage("Veuillez remplir tous les champs.", "error");
+        return;
+      }
       if(password !== confirmPassword) {
         showMessage("Les mots de passe ne correspondent pas.", "error");
         return;
       }
-      if(password.length < 6) {
-        showMessage("Le mot de passe doit contenir au moins 6 caractères.", "error");
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          // Sauvegarder nom et téléphone dans Firestore
+          return db.collection('users').doc(user.uid).set({
+            fullName: fullName,
+            phone: phone,
+            email: email
+          });
+        })
+        .then(() => {
+          showMessage("Inscription réussie ! Bienvenue.", "success");
+          clearInputs();
+        })
+        .catch(error => {
+          showMessage("Erreur : " + error.message, "error");
+        });
+    });
+
+    loginBtn.addEventListener('click', () => {
+      if(mode !== 'login') {
+        showLogin();
+        return;
+      }
+      // Traitement connexion
+      const emailOrPhone = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if(!emailOrPhone || !password) {
+        showMessage("Veuillez remplir tous les champs.", "error");
         return;
       }
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          // Tu peux enregistrer fullname et phone dans Firestore plus tard si tu veux
-          showMessage("Inscription réussie ! Bienvenue " + fullname + ".", "success");
-          signupForm.reset();
-        })
-        .catch((error) => {
-          showMessage("Erreur: " + error.message, "error");
-        });
-    });
-
-    // Connexion
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      let identifier = document.getElementById('login-identifier').value.trim();
-      let password = document.getElementById('login-password').value;
-
-      // Ici on suppose que l’identifiant est email, sinon tu peux ajouter vérification pour le téléphone
-      auth.signInWithEmailAndPassword(identifier, password)
-        .then(() => {
+      // Ici on suppose que l'email ou numéro est email (Firebase Auth ne gère pas le login par téléphone directement sans vérification SMS)
+      auth.signInWithEmailAndPassword(emailOrPhone, password)
+        .then(userCredential => {
           showMessage("Connexion réussie !", "success");
-          loginForm.reset();
+          clearInputs();
         })
-        .catch((error) => {
-          showMessage("Erreur: " + error.message, "error");
+        .catch(error => {
+          showMessage("Erreur : " + error.message, "error");
         });
     });
 
-    // Fonction pour afficher message
-    function showMessage(msg, type) {
-      message.textContent = msg;
-      message.className = type;
+    logoutBtn.addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    // Écoute changement état utilisateur
+    auth.onAuthStateChanged(user => {
+      if(user) {
+        authContainer.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        userUidSpan.textContent = user.uid;
+
+        // Récupérer données supplémentaires dans Firestore
+        db.collection('users').doc(user.uid).get()
+          .then(doc => {
+            if(doc.exists) {
+              const data = doc.data();
+              userNameSpan.textContent = data.fullName || "N/A";
+              userPhoneSpan.textContent = data.phone || "N/A";
+              userEmailSpan.textContent = data.email || user.email;
+            } else {
+              userNameSpan.textContent = "N/A";
+              userPhoneSpan.textContent = "N/A";
+              userEmailSpan.textContent = user.email;
+            }
+          })
+          .catch(() => {
+            userNameSpan.textContent = "N/A";
+            userPhoneSpan.textContent = "N/A";
+            userEmailSpan.textContent = user.email;
+          });
+
+      } else {
+        authContainer.classList.remove('hidden');
+        dashboard.classList.add('hidden');
+        showSignup(); // Par défaut formulaire inscription
+        clearInputs();
+      }
+      message.textContent = "";
+    });
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type}`;
+    }
+
+    function clearInputs() {
+      fullNameInput.value = '';
+      phoneInput.value = '';
+      emailInput.value = '';
+      passwordInput.value = '';
+      confirmPasswordInput.value = '';
     }
   </script>
 </body>
